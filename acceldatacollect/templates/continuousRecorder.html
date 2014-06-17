@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<body>
+	<div data-role="page" data-theme="a">
+
+		{% include "menu_header.html" %}
+
+		<div data-role="content" data-theme="a">
+
+			<h2>Continuous Recorder</h2>
+			<p>To view the recording or download raw csv or json data, go to the <a data-ajax="false" href="/listDataCont">summary page</a> and look for the name you entered. It is easier to view that on a Desktop.</p>
+			<p>By specifying an E-Mail, a link to your recording will be e-mailed to you.</p>
+			<p>Only press the Post button once the recording is finished.</p>
+
+			<label for="slider1">Sampling Frequency (Hz)</label>
+			<input type="range" name="slider1" id="fSample" value="20" min="1" max="60" data-theme="a" />
+
+			<label for="input1">Please Enter:</label>
+			<input type="text" name ="input1" id="userName" placeholder="Name..." value=""> 
+	        <input type="email" name="email" id="email" placeholder="E-mail (Not necessary)" />
+
+			<br>
+
+
+			<div><button id="startTracking">Start recording</button></div>
+			<div><button id="stopTracking">Stop recording</button></div>
+			<div id="t" class="badge">00:00</div>
+			<br>
+			<button id="postAccelButton" data-icon="check">Post recorded data</button>
+
+			<p>Info:</p>
+			<div id="statusField">_</div>
+			<div id="infoField"></div>
+
+		</div>
+	</div>
+
+ </body>
+
+
+<script src="static/timer.jquery.min.js"></script>
+
+<script type="text/javascript">
+
+$(document).ready(function(){
+	console.log("ready");
+	$("#stopTracking").hide();
+});
+
+// variables for the geolocation module
+var geoLoc;
+var watchID;
+
+// variables for the accel data
+var sampleID = 0;
+var sampleData = new Object();
+
+$("body").on("click","button#postAccelButton", longAjaxCall);
+
+$("body").on("click","button#startTracking", function(){
+		// toggle the buttons
+		$("#startTracking").hide();
+		$("#stopTracking").show();
+		$("#t").timer("start", {seconds: 1});
+
+		gyro.frequency = parseFloat($("#fSample").val()) ;
+		console.log("gryo freq in ms:" + gyro.frequency);
+		sampleData.origSampleFrequ = parseFloat($("#fSample").val());
+		sampleData.startTime = new Date().getTime();
+		sampleData.dataPoints = {t:[], t2:[], id:[], x:[], y:[], z:[], alpha:[], beta:[], gamma:[],};
+		gyro.startTracking(function(acel) {
+			var t = new Date().getTime();
+			//console.log( "in dataCollect.html, t im ms:");
+			//console.log(t);
+			sampleData.dataPoints.t.push(t);
+			sampleData.dataPoints.id.push(sampleID);
+			sampleData.dataPoints.x.push(acel.x);
+			sampleData.dataPoints.y.push(acel.y);
+			sampleData.dataPoints.z.push(acel.z);
+			sampleData.dataPoints.alpha.push(acel.alpha);
+			sampleData.dataPoints.beta.push(acel.beta);
+			sampleData.dataPoints.gamma.push(acel.gamma);
+			sampleID = sampleID + 1;
+			//var t2 = new Date().getTime(); 
+			//console.log( "data collection took:");
+			//console.log(t2 - t);
+		})
+	}
+);
+
+
+$("body").on("click","button#stopTracking", function(){
+	$("#startTracking").show();
+	$("#stopTracking").hide();
+	gyro.stopTracking();
+	var t = new Date().getTime();
+	sampleData.endTime = t;
+	console.log(t);
+	$("#t").timer("pause");
+	$( "div#infoField" ).html("stop tracking");
+});
+
+
+function longAjaxCall(event) {
+    console.log("longAjaxCall triggered");
+
+    sampleData.user = $("#userName").val();
+    sampleData.email = $("#email").val();
+
+	console.log(JSON.stringify(sampleData))
+	console.log($("#userName").val());
+	console.log($("#fSample").val());
+
+    $.ajax({
+        url: "postData",
+        type: "POST",
+        //data: sampleData,
+        data: JSON.stringify(sampleData),
+        dataType: "json" 
+    })
+    .done(function(data){ 
+
+    	$("div#infoField").html(data.info);
+    	$("div#statusField").css("background-color","springgreen");
+
+    })
+	.fail(function() { $( "div#infoField" ).html("Query failed. <br>");
+					   $("div#statusField").css("background-color","orangered");  })
+	.always(function() { console.log( "complete" ); })
+}
+
+</script>
+
+{% endblock %}
+
+
+

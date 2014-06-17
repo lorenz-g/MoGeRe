@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Accel Data</title>
+
+
+
+
+    <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+    <script src="/static/flot/jquery.flot.js"></script>
+    <link rel="stylesheet" href="/static/flot.css" />
+
+
+
+
+  <title>Plot Accel Data</title>
+</head>
+  
+
+<body>
+	<div><span><a href="/">Start Page </a> <a href="/listData">| List View</a></span> </div>
+
+	<div id="header">
+		<h2>Plots</h2>
+	</div>
+
+	<div id="content">
+		<h2>Info</h2>
+		<p class="attention">Please press refresh if graphs don't show up.</p>
+		<p>Name  <b>{{q.user.get().name}}</b></p>
+		<p>Start time  <b>{{q.startTime}}</b></p>
+		<p>Duration (s)  <b>{{q.duration}}</b></p>
+		<p># of samples  <b>{{q.sampleNumber}}</b></p>
+		<p>Av. sample frequ  <b>{{q.avSampleFrequ}}</b></p>
+		<p>Orig. sample frequ  <b>{{q.origSampleFrequ}}</b></p>
+		<p>Raw data 
+			<a href="/sample/{{q.key.id()}}/.json">json</a>
+			<a href="/sample/{{q.key.id()}}/.csv">csv</a>
+		</p>
+		<p>User Agent   {{q.userAgent}}</p>
+		<p>Data store key  <b>{{q.key.id()}}</b></p>
+
+
+	
+
+		<h2>Accelerometer Plot</h2>
+		<div class="demo-container">
+	  		<div id="accelPlot" class="demo-placeholder"></div>
+	  	</div>
+
+	  	<h2>Detection algorithm</h2>
+	  	<p>Here, the above chart is filtered for a specific movement. If the graph below is 1, it means 
+	  		that a movement was detected. </p>
+	  	<p class="attention">{{error}}</p>
+
+		<div class="demo-container" id="detectPlotContainer">
+	  		<div id="detectPlot" class="demo-placeholder"></div>
+	  	</div>
+
+
+
+	  	{% if gyroPlot != [] %}
+		<h2>Gyroscope Plot</h2>
+		<div class="demo-container">
+	  		<div id="gyroPlot" class="demo-placeholder"></div>
+	  	</div>
+		{% endif %}
+
+		<h2>Detection Algorithm Report</h2>
+		<p class="attention">This report is relevant for internal use only. </p>
+		<div id="report">
+		</div>
+
+
+
+	</div>
+
+
+
+
+</body>
+
+<script type="text/javascript">
+
+var dataAccel = [
+	{ data: {{accelPlot[0]}}, label: "X Accel", color: "red" },
+	{ data: {{accelPlot[1]}}, label: "Y Accel", color: "springgreen" },
+	{ data: {{accelPlot[2]}}, label: "Z Accel", color: "blue" },
+]
+
+// axis labels do not work....
+$.plot($("#accelPlot"), dataAccel, {
+	xaxis: {
+        axisLabel: 'Amount',
+        axisLabelUseCanvas: true,
+        axisLabelFontSizePixels: 12,
+        axisLabelFontFamily: 'Verdana, Arial, Helvetica, Tahoma, sans-serif',
+        axisLabelPadding: 5
+	},
+	yaxis:{
+		axisLabel: "Acceleration in g (1g = 9.82 m / s^2)"
+	}
+});
+
+
+// detect plot
+
+// make it smaller
+$("#detectPlotContainer").css("height", "150px")
+
+var dataDetect = [
+	{ data: {{detectPlot["data"]}}, label: "{{detectPlot["label"]}}", color: "red" },
+]
+$.plot($("#detectPlot"), dataDetect );
+$("#report").html("{{detectPlot["report"] | safe }}")
+
+
+
+// gyro plot
+{% if gyroPlot != [] %}
+
+var dataGyro = [
+	{ data: {{gyroPlot[0]}}, label: "Alpha", color: "red" },
+	{ data: {{gyroPlot[1]}}, label: "Beta", color: "springgreen" },
+	{ data: {{gyroPlot[2]}}, label: "Gamma", color: "blue" },
+]
+
+$.plot($("#gyroPlot"), dataGyro);
+{% endif %}
+
+
+</script>
+
+</html>

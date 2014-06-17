@@ -1,0 +1,334 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<body>
+	<div data-role="page" data-theme="a">
+
+
+		{% include "menu_header.html" %}
+
+
+		<div data-role="content" data-theme="a">
+			<h2>Continuous Recognizer</h2>
+
+			<p>Choose a model that will be loaded from the server. The default one is best. Also the parameters that can be controlled with the silders should be best by default.
+			Once the recognition was started, changing the parameters has no effect. </p>
+
+			<div data-role="fieldcontain">
+			   <label for="select-choice-1" class="select">Choose Recognition Model:</label>
+			   <select name="select-choice-1" id="select-choice-model">
+			   	  {%for i in file_names%}
+			      <option value="{{i}}">{{i}}</option>
+			      {%endfor%}
+			   </select>
+			</div>
+
+			<div id="tdiv1">
+
+				<table datarole="table">
+					    <tr>
+					    	<td>Gestures </td>
+					    	<td id="td0">_</td>
+					    </tr>
+					    <tr>
+					    	<td>Sampling Frequency (Hz) </td>
+					    	<td id="td1">_</td>
+					    </tr>
+					    <tr>
+					    	<td>Seperate filter </td>
+					    	<td id="td2">_</td>
+					    </tr>
+
+				</table>
+			</div>
+
+			<label for="slider1">Window Length(ms)</label>
+			<input type="range" name="slider1" id="window_length" value="1000" min="600" max="2000" step="100" data-theme="a" />
+			
+			<label for="slider2">Noise Threshold</label>
+			<input type="range" name="slider2" id="noise_th" value="10" min="0" max="40" data-theme="a" />
+			
+			<label for="slider3">Log likelihood Threshold</label>
+			<input type="range" name="slider3" id="ll_th" value="2" min="-200" max="-20" step="5" data-theme="a" />
+			<br>
+
+
+			<div>Info:</div>
+			<div id="statusField">_</div>
+			<div id="infoField">_</div>
+
+			<div><button id="startTracking">Start</button></div>
+			<div><button id="stopTracking">Stop</button></div>
+			<div id="t" class="badge">00:00</div>
+
+			<div>
+			    <label for="flip-1">Gesture Popups</label>
+			    <select name="flip-1" id="popupEnable" data-role="slider">
+			        <option value="off">Off</option>
+			        <option value="on" selected="selected" >On</option>
+			    </select>
+			</div>
+			
+
+  
+		</div>
+
+		<p>To enable the sound, press the player to load the sound.</p>
+		<audio controls id="audio_stop">
+			<source src="https://dl.dropboxusercontent.com/u/14163800/accell/stop.m4a" type="audio/mpeg">
+			  Your browser does not support the audio element.
+		</audio>
+
+
+		<!-- the popups that appear once the a gesture is recognized... -->
+		<div data-role="popup" class="gesturePopup" id="popupG1" data-overlay-theme="a" data-theme="a" data-corners="false">
+			<a href="#" data-rel="back" class="ui-btn ui-corner-all ui-shadow ui-btn-a ui-icon-delete ui-btn-icon-notext ui-btn-right">Close</a>
+			<img class="popphoto" src="/static/pictures/g1.jpg" style="max-height:512px;">
+			<h4>Gesture 1: Double knock</h4>
+			<p>Move the phone up and knock on the back of the phone twice with your left fist. </p>
+		</div>
+
+		<div data-role="popup" class="gesturePopup" id="popupG2" data-overlay-theme="a" data-theme="a" data-corners="false">
+			<a href="#" data-rel="back" class="ui-btn ui-corner-all ui-shadow ui-btn-a ui-icon-delete ui-btn-icon-notext ui-btn-right">Close</a>
+			<img class="popphoto" src="/static/pictures/g2.jpg" style="max-height:512px;">
+			<h4>Gesture 2: Tick move </h4>
+			<p> Hold the right arm straight. Then move your arm down and up but to the right at the same time. </p>
+		</div>
+
+
+		<div data-role="popup" class="gesturePopup" id="popupG3" data-overlay-theme="a" data-theme="a" data-corners="false">
+			<a href="#" data-rel="back" class="ui-btn ui-corner-all ui-shadow ui-btn-a ui-icon-delete ui-btn-icon-notext ui-btn-right">Close</a>
+			<img class="popphoto" src="/static/pictures/g3.jpg" style="max-height:512px;">
+			<h4>Gesture 3: Indication+90 </h4>
+			<p> Hold right arm straight. Move left arm up and right as indicating on a bicycle. Turn you right arm by 90 degrees to the right. </p>
+		</div>
+
+		<div data-role="popup" class="gesturePopup" id="popupG4" data-overlay-theme="a" data-theme="a" data-corners="false">
+			<a href="#" data-rel="back" class="ui-btn ui-corner-all ui-shadow ui-btn-a ui-icon-delete ui-btn-icon-notext ui-btn-right">Close</a>
+			<img class="popphoto" src="/static/pictures/g4.jpg" style="max-height:512px;">
+			<h4>Gesture 4: Rightleft right </h4>
+			<p> Turn your hand 90 deg. to the right, then 180 deg. to the left, 180 deg. To the right and 90 to the left. </p>
+		</div>
+
+		<div data-role="popup" class="gesturePopup" id="popupG5" data-overlay-theme="a" data-theme="a" data-corners="false">
+			<a href="#" data-rel="back" class="ui-btn ui-corner-all ui-shadow ui-btn-a ui-icon-delete ui-btn-icon-notext ui-btn-right">Close</a>
+			<img class="popphoto" src="/static/pictures/g5.jpg" style="max-height:512px;">
+			<h4>Gesture 5: Z move </h4>
+			<p> Write a Z with your right hand starting at the top left. </p>
+		</div>
+
+	</div>
+
+
+
+ </body>
+
+
+<script src="/static/js_recognizer/JSProbability-master/HiddenMarkovModel.js"></script>
+<script src="/static/js_recognizer/discrete_rec_sep_filter.js"></script>
+<script src="/static/timer.jquery.min.js"></script>
+
+<script type="text/javascript">
+
+// good ovierview of variable scope in JS
+// http://stackoverflow.com/questions/500431/javascript-variable-scope
+
+$(document).ready(function(){
+	console.log("ready");
+	$("#stopTracking").hide();
+
+});
+
+//// PARAMETERS FOR  RECORDING
+
+// measures how often the computations take too long...
+var real_time_delay = 0;
+
+
+
+
+/**
+ * Load the Json Model the first time
+*/
+
+var JM = new Object();
+
+
+function loadModel(mName){
+	$.getJSON("/json_models/" + mName)
+	.done(function( data ) {
+		$("div#infoField" ).html(mName + " model loaded");
+	    JM = data;
+	    var gest_array = [];
+	    for(var i = 0; i < JM.models.length; i++){
+	    	gest_array.push(JM.models[i].gesture);
+	    }
+
+	    $("td#td0" ).html(gest_array.join(" ,"));
+	    $("td#td1" ).html(JM.info.f_sample);
+	    $("td#td2" ).html(JM.info.sep_filter);
+		$("#window_length" ).val(JM.info.window_length);
+		$("#window_length" ).slider('refresh');
+
+		$("#noise_th" ).val(JM.info.noise_th);
+		$("#noise_th" ).slider('refresh');
+
+		$("#ll_th").val(JM.info.ll_th);
+		$("#ll_th").slider('refresh');
+
+	})
+	.fail(function() {
+		$("div#infoField" ).html("Failed to load model: " + mName);
+	});
+
+}
+
+loadModel("{{file_names[0]}}");
+
+
+// reload if json model was changed
+$( "#select-choice-model" ).change(function() {
+    //alert( "Handler." + $( this ).val());
+  	var mName = $( this ).val();
+  	loadModel(mName);
+
+});
+
+
+
+$("body").on("click","button#startTracking", function(){
+	console.log("startTracking pressed");
+
+	// toggle the buttons
+	$("#startTracking").hide();
+	$("#stopTracking").show();
+
+	$( "div#infoField" ).html("Recording started ...");
+	$("div#statusField").css("background-color","white");
+	$("#t").timer("start", {seconds: 1});
+
+	
+	// pick the first gesture, they all have the same fs anyway..
+	var fSample = JM.models[0].f_sample;
+	// CAREFUL: does not work with model created prior to 8.5. 
+	var windowLength = parseFloat($("#window_length").val()); // in ms
+	var noise_th = JM.info.noise_th;
+	var noOfDataPoints = windowLength * fSample / 1000;
+
+	gyro.stopTracking();
+	gyro.frequency = fSample;
+	console.log("gryo freq in hz:" + gyro.frequency);
+
+
+	// keeps track 
+	var sampleCounter = 0;
+	// here datapoints variable is set to zero...
+	var data = {t:[], x:[], y:[], z:[], dur:[]};
+	
+
+	// carefull here: this function is just regestering a callback function which is
+	// then called every 
+	gyro.startTracking(function(acel) {
+		var t = new Date().getTime();
+		//console.log( "in dataCollect.html, t im ms:");
+		//console.log(t);
+
+		// this can get very long if the recording is long...
+		// but as the phone shuts off automatically after 1min, this is fine...
+		data.t.push(t);
+		data.x.push(acel.x);
+		data.y.push(acel.y);
+		data.z.push(acel.z);
+		
+		sampleCounter += 1;
+
+		// only start after window length samples have been recorded
+		// this at the same time this resets a gesture was detected...
+		if (sampleCounter > noOfDataPoints)
+		{
+			// close open popups
+			if (sampleCounter == (noOfDataPoints+1)){
+				$( ".gesturePopup").popup( "close");	
+			};
+
+
+			// evaluete the sample here
+			var res;
+			var t = new Date().getTime();
+
+			// evaluete the sample here
+			var res;
+
+			// this is the slow implementation essentially, for every new sample the entire cluster is calculated again.
+			var sliced_data = {x: data.x.slice(-noOfDataPoints),
+				y: data.y.slice(-noOfDataPoints),
+				z: data.z.slice(-noOfDataPoints)
+			};
+	    		
+	    	res = discrete_recognizer_sep_filter(JM, sliced_data,
+	    		parseFloat($("#noise_th").val()),
+	    		parseFloat($("#ll_th").val()));
+
+
+
+	    	var t2 = new Date().getTime();
+	    	data.dur.push(t2-t);
+
+	    	if ((t2-t) > (1000/fSample)){
+	    		real_time_delay += 1;
+	    	};
+
+	    	if (res.status == 1){
+	    		// reset the sampleCounter to ignore the following windowlenth seconds
+	    		sampleCounter = 0;
+
+				// play audio....
+			    var myAudio = document.getElementById("audio_stop");
+				myAudio.play();	
+
+				if ($("#popupEnable").val() == "on"){
+					$( "#popupG" + res.best_gesture).popup("open");	
+				};
+
+		    	$( "div#infoField" ).html("best gesture: " + res.best_gesture);
+		    	$( "div#infoField" ).append(";<br>best score: " + res.best_score);
+		    	$( "div#infoField" ).append(";<br>Model name: " + JM.info.matlab_name);
+		    	$( "div#infoField" ).append(";<br>IDX_len: " + res.IDX_len);
+		    	$( "div#infoField" ).append(";<br> Total time taken (ms): " + (t2 - t));
+		    	$( "div#infoField" ).append(";<br> Total time taken (ms): " + (t2 - t));
+		    	$( "div#infoField" ).append(";<br> t_filter(ms): " + res.t_filter);
+		    	$( "div#infoField" ).append(";<br> t_cluster(ms): " + res.t_cluster);
+		    	$( "div#infoField" ).append(";<br> t_hmm(ms): " + res.t_hmm);
+	    	};
+
+		}
+		else{
+			///push dur = 0 for the first two seconds
+			data.dur.push(0);
+
+		};
+
+	});
+
+
+
+});
+
+$("body").on("click","button#stopTracking", function(){
+	// toggle buttons
+	$("#startTracking").show();
+	$("#stopTracking").hide();
+	gyro.stopTracking();
+
+	$("#t").timer("pause");
+	$( "div#infoField" ).html("stop tracking; real_time_delay couter: " + real_time_delay);
+});
+
+
+</script>
+
+{% endblock %}
+
+
+

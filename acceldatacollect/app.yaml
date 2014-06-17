@@ -1,0 +1,21 @@
+application: acceldatacollect
+version: 3
+runtime: python27
+api_version: 1
+threadsafe: true
+
+handlers:
+- url: /static
+  static_dir: static
+
+- url: /.*
+  script: main.app
+
+libraries: 
+- name: jinja2
+  version: "2.6"
+  
+- name: numpy
+  version: "latest"
+
+

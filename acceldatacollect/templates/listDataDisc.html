@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+
+  <title>Accel data</title>
+  <link rel="stylesheet" href="/static/flot.css" />
+</head>
+
+
+<body>
+
+	<ul>
+	    <li class="navigationBar"><a href="/">Start Page</a></li>
+  	</ul>
+  	<div id="header">
+		<h2>Discrete Recordings</h2>
+	</div>
+
+
+	<div id="content">		
+
+		<form name="input" action="/listDataDisc" method="get">
+			Filter user: <input type="text" name="user"><br>
+			Maximum: <input type="text" name="fetch">
+			<input type="submit" value="Submit">
+		</form>
+
+		<table class="dataTable">
+		    <tr>
+		        <td id ="col0" class="header">Start time</td>
+		        <td id ="col05" class="header">User</td>
+		        <td id ="col1" class="header">Gesture</td>
+		        <td id ="col2" class="header">Orig F_s</td>
+		        <td id ="col3" class="header">Duration</td>
+		        <td id ="col5" class="header">Reps</td>
+		        <td id ="col52" class="header"></td>
+		        <td id ="col7" class="header">Entity key</td>
+		    </tr>
+
+		{%for item in q%}
+			<tr>
+				<td>{{item.startTime}}</td>
+				<td>{{item.user}}</td>
+				<td>{{item.gesture}}</td>
+				<td>{{item.origSampleFrequ}}</td>
+				<td>{{"%.0f" % item.periodGesture}}</td>
+				<td>{{item.noOfRepetitions}}</td>
+				<td>
+					<a href="/disc_sample/{{item.key.id()}}/.json">json</a> 
+					<a href="/disc_sample/{{item.key.id()}}/.zip">zip</a>
+				</td>
+
+				<td>{{item.key.id()}}</td>
+			</tr>
+		{%endfor%}
+
+		</table>
+
+	<br>
+	To download multiple gestures at a time, the following query parameters can be used:
+	<br>
+	www.acceldatacollect.appspot.com/downloadGestures?user=USERNAME
+	<br>
+	Fetches all entires of a single user
+	<br>
+	www.acceldatacollect.appspot.com/downloadGestures?fetch=10
+	<br>
+	Fetches the last 10 entries. Note that the file format will be in JSON and the top level is a list / array containing all entries chosen. 
+
+	</div>
+</body>
+
+</html>

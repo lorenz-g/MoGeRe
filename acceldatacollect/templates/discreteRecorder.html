@@ -1,0 +1,212 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<body>
+	<div data-role="page" data-theme="a">
+		{% include "menu_header.html" %}
+
+
+		<div data-role="content" data-theme="a">
+			<h1>Discrete Recorder</h1>
+			<p>
+				Use this to record multiple repetitions of a single gesture. The default are 10 repetitions and 2 seconds per gesture sampled at 20Hz. There is a 2 second break between the gestures. <b>Play the two sounds at the bottom of the page once before starting to record.</b> Once the start button is pressed these sounds indicate start and stop of each repetition.
+			</p>
+			<p>The samples can be downloaded from the <a href="/listDataDisc" data-ajax="false">summary page</a></p>
+			<label for="input1">Please Enter:</label>
+			<input type="text" name ="input1" id="userName" placeholder="Your Name..." value=""> 
+			<input type="text" name ="input1" id="gestureName" placeholder="Gesture name..." value=""> 
+
+			<label for="slider1">Sampling Frequency (Hz)</label>
+			<input type="range" name="slider1" id="fSample" value="20" min="1" max="60" data-theme="a" />
+			<label for="slider2">Duration per gesture(s)</label>
+			<input type="range" name="slider2" id="periodGesture" value="2" min="1" max="5" step="0.2"data-theme="a" />
+			<label for="slider3">Repetitions</label>
+			<input type="range" name="slider3" id="noOfRepetitions" value="10" min="1" max="10" data-theme="a" />
+
+			<span>Info:</span>
+			<div id="statusField">_</div>
+			<div id="infoField">_</div>
+
+    		<button id="startGestureRec" >Start Gesture Rec</button>
+    		<br>
+    		<button id="postAccelButton" data-inline="true" data-icon="check">Post data</button>
+    		<button id="cancelGestureRec" data-inline="true" data-icon="cross">Cancel</button>
+
+  
+		</div>
+
+		<p></p>
+
+		<audio controls id="audio_start">
+			<!-- when I tried to load the files locally and not from dropbox, it worked on the 
+			Desktop version of chrome and safari, however not on the mobile version. I dont know why... 
+			also: it seems that the control needs to be on, and one has to manually play the sound for one time before it can then be played automatically....
+			I think I have read that apple did that on purpose to prevent to much sound popping up....
+			-->
+			<source src="https://dl.dropboxusercontent.com/u/14163800/accell/start.m4a" type="audio/mpeg">
+			  Your browser does not support the audio element.
+		</audio
+		<br>
+		<audio controls id="audio_stop">
+			<source src="https://dl.dropboxusercontent.com/u/14163800/accell/stop.m4a" type="audio/mpeg">
+			  Your browser does not support the audio element.
+		</audio>
+	</div>
+
+ </body>
+
+
+<script src="static/timer.jquery.min.js"></script>
+
+<script type="text/javascript">
+
+$(document).ready(function(){
+	console.log("ready");
+	$("#stopTracking").hide();
+
+	// this only works on desktop browsers, on mobile browsers, one needs to play the the first time manually
+    //var myAudio = document.getElementById("audio_start");
+	//myAudio.play();
+
+
+});
+
+
+// variables for the accel data
+var sampleData = new Object();
+
+// variables for gesture recordings
+var gestureTimer = null;
+
+$("body").on("click","button#startGestureRec", function(){
+	console.log("startGestureRec pressed");
+	
+	// in case the start button is pressed whilst another recording is still going...
+	clearInterval(gestureTimer);
+	gyro.stopTracking();
+
+	// counts the repetitions
+	var repCounter = 0;
+
+	//// PARAMETERS FOR  RECORDING	
+	var periodGesture = $("#periodGesture").val()* 1000; //  in ms.
+	// have a two second break...
+	var periodTotal = periodGesture + 2000; //  in ms.  
+	var noOfReps = $("#noOfRepetitions").val();
+	var fSample = $("#fSample").val(); // in Hz;
+
+	// log the slider values already, the names can still be changed after the recording
+	sampleData.origSampleFrequ = fSample * 1; // *1 turn them from str to num
+	sampleData.noOfRepetitions = noOfReps * 1;
+	sampleData.periodGesture = periodGesture;
+	sampleData.startTime = new Date().getTime();
+	sampleData.repetitions = [];
+
+
+	gyro.frequency = fSample;
+	console.log("gryo freq in ms:" + gyro.frequency);
+
+	$( "div#infoField" ).html("Recording started ...");
+	$("div#statusField").css("background-color","white");
+
+
+	// A callback function is registered here. This is not sequential code. 
+	gestureTimer = setInterval(function() {
+		console.log(repCounter);
+		
+	    var myAudio = document.getElementById("audio_start");
+		myAudio.play();
+
+		// keeps track 
+		var sampleCounter = 0;
+		// here datapoints variable is set to zero...
+		var data = {t:[], x:[], y:[], z:[], alpha:[], beta:[], gamma:[],};
+		
+
+		// carefull here: this function is just regestering a callback function which is
+		// then called every 
+		gyro.startTracking(function(acel) {
+			var t = new Date().getTime();
+			//console.log( "in dataCollect.html, t im ms:");
+			//console.log(t);
+			data.t.push(t);
+			data.x.push(acel.x);
+			data.y.push(acel.y);
+			data.z.push(acel.z);
+			data.alpha.push(acel.alpha);
+			data.beta.push(acel.beta);
+			data.gamma.push(acel.gamma);
+			sampleCounter += 1;
+
+			if (sampleCounter > fSample*periodGesture/1000)
+			{
+				gyro.stopTracking();
+				data.rep = repCounter;
+				sampleData.repetitions.push(data);	
+
+				/// inser the stop sound here...
+			    var myAudio = document.getElementById("audio_stop");
+				myAudio.play();
+
+				// Increase the repCounter when the datarecording has finished
+				repCounter +=1;
+				$( "div#infoField" ).html(repCounter);
+				if (repCounter == noOfReps)
+			  	{
+				  	clearInterval(gestureTimer);
+				  	$( "div#infoField" ).html("Recording stopped");
+			  	};
+			};
+
+		});
+
+	}, periodTotal);
+
+})
+
+$("body").on("click","button#cancelGestureRec", function(){
+	console.log("cancelGestureRec pressed");
+	$("div#infoField" ).html("Recording cancelled. Temporary data deleted. ");
+	$("div#statusField").css("background-color","white");
+	clearInterval(gestureTimer);
+	sampleData = {};
+})
+
+$("body").on("click","button#postAccelButton", longAjaxCall);
+
+function longAjaxCall(event) {
+    console.log("longAjaxCall triggered");
+	
+	sampleData.gesture = $("#gestureName").val();
+    sampleData.user = $("#userName").val();
+
+	console.log("gesturevalue = ");
+	console.log(sampleData.gesture);
+	//console.log(JSON.stringify(sampleData))
+	console.log($("#userName").val());
+	console.log($("#fSample").val());
+
+    $.ajax({
+        url: "postGesture",
+        type: "POST",
+        //data: sampleData,
+        data: JSON.stringify(sampleData),
+        dataType: "json" 
+    })
+    .done(function(data){ 
+    	$("div#infoField").html(data.info);
+    	$("div#statusField").css("background-color","springgreen");
+
+    })
+	.fail(function() { $( "div#infoField" ).html("Query failed. <br>");
+					   $("div#statusField").css("background-color","orangered");  })
+	.always(function() { console.log( "complete" ); })
+}
+
+</script>
+
+{% endblock %}
+
+
+

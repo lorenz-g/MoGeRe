@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<body>
+	<div data-role="page" data-theme="a">
+
+
+		{% include "menu_header.html" %}
+
+
+		<div data-role="content" data-theme="a">
+			<h1>Info</h1>
+			<p>This site is part of my Final Year Project 2013/14 at Imperial College London. Its focus lies on robust hand gesture recognition using accelerometers.</p>
+
+			<p>This site will only work if your device has an inbuilt accelerometer</p>
+
+			<p>There are the <a data-ajax="false" href="/continuousRecorder">continuous </a>and <a data-ajax="false" href="/discreteRecorder">discrete </a> recorders that can be used to capture hand gestures and store them on the server (more details on their pages). </p>
+
+			<p> The <a  data-ajax="false" href="/continuousRecognizer">continuous </a> and <a data-ajax="false" href="/discreteRecognizer">discrete </a> recognizers should detect one of the following five gestures once the start button was pressed. Both recognizers use trained Hidden Markov Models for the recognition process. As the evaluation is done in real time on the client, the code available through any web inspector. </p>
+
+			<h3>5 hand gestures</h3>
+			<p>Please hold the phone in your right hand with the screen facing to the top. </p>
+
+			<h4>Gesture 1: Double knock</h4>
+			<p>Move the phone up and knock on the back of the phone twice with your left fist. </p>
+			<img src="/static/pictures/g1.jpg">
+
+			<h4>Gesture 2: Tick move </h4>
+			<p> Hold the right arm straight. Then move your arm down and up but to the right at the same time. </p>
+			<img src="/static/pictures/g2.jpg">
+
+			<h4>Gesture 3: Indication+90 </h4>
+			<p> Hold right arm straight. Move left arm up and right as indicating on a bicycle. Turn you right arm by 90 degrees to the right. </p>
+			<img src="/static/pictures/g3.jpg">
+
+			<h4>Gesture 4: Righe left right </h4>
+			<p> Turn your hand 90 deg. to the right, then 180 deg. to the left, 180 deg. To the right and 90 to the left. </p>
+			<img src="/static/pictures/g4.jpg">
+
+			<h4>Gesture 5: Z move </h4>
+			<p> Write a Z with your right hand starting at the top left. </p>
+			<img src="/static/pictures/g5.jpg">
+
+			<h1>Contact</h1>
+			<p>Lorenz Gruber, lorenz.gruber10_a_t_imperial.ac.uk</p>
+
+
+
+		</div>
+	</div>
+
+ </body>
+
+ {% endblock %}
+

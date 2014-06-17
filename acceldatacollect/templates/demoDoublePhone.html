@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+
+
+#startGestureRec{
+  background-color: springgreen;
+  height: 200px !important;
+
+}
+
+
+</style>
+
+
+<body>
+
+    <div data-role="page" data-theme="a">
+
+        {% include "menu_header.html" %}
+
+        
+        <div data-role="content" data-theme="a">
+            <h3>Gesture Bookmarks - Demo 2</h3>
+            <!---->
+            <div id="test">ddd</div>
+            <div id="info">ddd</div>
+            <br><br>
+            
+
+            <button id="startGestureRec" >START</button>
+        </div>
+
+    </div> 
+
+</body>
+
+<script src="/static/js_recognizer/JSProbability-master/HiddenMarkovModel.js"></script>
+<script src="/static/js_recognizer/discrete_rec_sep_filter.js"></script>
+
+<script>
+
+/**
+ * Load the Json Model
+*/
+
+var JM = new Object();
+
+//var modelName = "/json_models/discrete/all_models_25_4.json";
+var modelName = "/json_models/demo/AtoG_l2r_6_6.json";
+
+//AtoG_l2r_6_6 gesture a and G work well
+
+$.getJSON(modelName)
+.done(function( data ) {
+    JM = data;
+});
+
+
+var gestToName = {
+  "1" : "double knock",
+  "2" : "tick move",
+  "3" : "ind move plus 90",
+  "4" : "left right left right",
+  "5" : "z",
+  "6" : "A",
+  "7" : "B",
+  "8" : "C",
+  "9" : "D",
+  "10" : "E",
+  "11" : "F",
+  "12" : "G"
+};
+
+var nameToPage = {
+    "A" : "http://amazon.co.uk",
+    "G": 'http://www.google.co.uk'
+}
+
+
+gyro.frequency = 20;
+console.log("gryo freq in hz:" + gyro.frequency);
+var data = {t:[], x:[], y:[], z:[]};
+
+
+
+$('#startGestureRec').bind( "touchstart", function(e){
+
+        data = {t:[], x:[], y:[], z:[]};
+        JM
+        $("#test").append("ts");
+        $(this).css("background-color", "orangered");
+
+        gyro.startTracking(function(acel) {
+            var t = new Date().getTime();
+            data.t.push(t);
+            data.x.push(acel.x);
+            data.y.push(acel.y);
+            data.z.push(acel.z);
+        });
+});
+
+$('#startGestureRec').bind( "touchend", function(e){
+        $(this).css("background-color", "springgreen");
+        $("#test").html("tstop");
+
+        gyro.stopTracking();
+        // assumes fsample of 20hz
+        if (data.t.length > 20){
+            var res = discrete_recognizer_sep_filter(JM, data, 10, -150);
+            if (res.status == 0){
+                $("#info").html(res.info); 
+            }
+            else{
+                var gesture_name = gestToName[res.best_gesture.toString()];
+                $("#info").html("Best gesture: " + gesture_name);
+
+                var page = nameToPage[gesture_name]
+                if (typeof page == 'undefined'){
+                    page = '';
+                }
+
+                $.ajax({
+                    url: "demoDoubleAction",
+                    type: "POST",
+                    data: {page : page, gestureName : gesture_name},
+                    //dataType: "json" 
+                    })
+                    .done(function(data){ 
+                      $("div#infoField").html(data.info);
+                      $("div#statusField").css("background-color","springgreen");
+
+                    })
+                    .fail(function() { console.log( "failed" );  })
+                    .always(function() { console.log( "complete" ); })
+            }
+        }
+        else{
+            $("#info").html("Touch button for more than one sec. ");
+        }
+        
+
+        
+        
+});
+
+/*
+$( "#startGestureRec" )
+  .mouseup(function() {
+    $("#test").append("mouseup");
+  })
+  .mousedown(function() {
+    console.log("mouse");
+    $("#test").html("mousedown");
+  });
+
+*/
+</script>
+
+{% endblock %}

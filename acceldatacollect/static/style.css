@@ -1,0 +1,23 @@
+
+/* for dataCollect.html */
+#startTracking{
+	background-color: springgreen;
+
+}
+
+#stopTracking{
+	background-color: orangered;
+
+}
+
+
+/* for gestureCollect.html 
+#postAccelButton{
+	background: springgreen;
+
+}
+
+#cancelGestureRec{
+	background: orangered;
+
+*/

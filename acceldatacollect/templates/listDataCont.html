@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+
+  <title>Accel data</title>
+  <link rel="stylesheet" href="/static/flot.css" />
+</head>
+
+
+<body>
+
+	<ul>
+	    <li class="navigationBar"><a href="/">Start Page</a></li>
+  	</ul>
+  	<div id="header">
+		<h2>Continuous Recordings</h2>
+	</div>
+
+	<div id="content">		
+		<table class="dataTable">
+		    <tr>
+		        <td id ="col0" class="header">Start time</td>
+		        <td id ="col05" class="header">User</td>
+		        <td id ="col1" class="header">Duration</td>
+		        <td id ="col2" class="header"># of samples</td>
+		        <td id ="col3" class="header">Av. F_s</td>
+		        <td id ="col5" class="header">Orig. F_s</td>
+		        <td id ="col51" class="header">Data Gap</td>
+		        <td id ="col52" class="header"></td>
+		        <td id ="col7" class="header">Entity key</td>
+		    </tr>
+
+		{%for item in q%}
+			<tr>
+				<td>{{item.startTime}}</td>
+				<td>{{item.user.get().name}}</td>
+				<td>{{"%.1f" % item.duration}}</td>
+				<td>{{item.sampleNumber}}</td>
+				<td>{{"%.2f" %item.avSampleFrequ}}</td>
+				<td>{{item.origSampleFrequ}}</td>
+				<td>{{item.dataGap}}</td>
+				<td>
+					<a href="/sample/{{item.key.id()}}/.json">json</a> 
+					<a href="/sample/{{item.key.id()}}/.csv">csv</a>
+					<a href="/sample/{{item.key.id()}}/plot">plot</a>
+				</td>
+
+				<td>{{item.key.id()}}</td>
+			</tr>
+		{%endfor%}
+
+		</table>
+	</div>
+</body>
+
+</html>
