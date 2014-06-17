@@ -3,6 +3,8 @@ function [ x,y,z,t,accel,fs] = read_6dmg_data(mat_filename, fs_ideal )
     % fs ideal in hertz
     % mat_filename example: 'g00_B1_t01.mat'
 
+    % 6dmg database downloaded from http://www.ece.gatech.edu/6DMG/Download.html
+
 load(mat_filename, '-mat', 'gest');
 
 t = gest(1,:);

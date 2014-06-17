@@ -1,6 +1,5 @@
 function [results_table, overall, prob_table] = test_data( test_set, gestures, s )
 
-
 % prob_table: name, gesture, most likely gesture, loglik gesture 1, 2, 3 ...
 prob_table= test_set(:,1);
 
@@ -28,7 +27,7 @@ end
 orig = [prob_table{:, 2}];
 det = [prob_table{:, 3}];
 
-% results table is normall rerferred to as confusion table
+% results table is normally rerferred to as confusion table
 % results_table(i,j) is a count of observations known to be in group i but predicted to be in group j
 results_table = zeros(size(gestures,2));
 

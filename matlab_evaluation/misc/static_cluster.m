@@ -1,4 +1,5 @@
 function [ IDX, C, f ] = static_cluster( idle_th, dir_th, gestures, persons, repetitions, no_of_clusters, r )
+% create static clusters intstead of random clusters for k-means
 %   gesture = '00|01', combine them with or sign
 %   persons = either 'A-Z' for all of them or ACZ e.g for A C Z 
 %                   does not differentiate between e.g. person A1 and A2

@@ -1,5 +1,5 @@
 function [s] = all_gestures_summary_v2( idle_th, dir_th )
-% Analyse all gestures (for 6dmg) 
+% Analyse the filter behaviour of the gesturess
 
 %idle_th= 0.2; 
 %dir_th=0.1;

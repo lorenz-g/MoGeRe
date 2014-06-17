@@ -8,11 +8,9 @@ import csv
 local server of from accelldatacollect.appspot.com. 
 It then creates a csv file for each data recorded in the format:
 
-TODO: put in the format
 
-
-Note: it devides the original acceleration data by 10. and creates a tRel variable
-that is just in seconds from the start instead of the epoch time in ms. 
+Note: It and creates a tRel variable that is just in seconds from the start
+instead of the epoch time in ms. 
 
 Diffeent URLs can be used:
 
@@ -24,16 +22,17 @@ fetches the last 15 elements in secure mode.
 #in case the json gets too big, it is prob. best to query individual users.
 "http://localhost:8080/downloadGestures?user=L1"
 "http://localhost:8080/downloadGestures?secure=1&user=L1"
+ "http://www.acceldatacollect.appspot.com/downloadGestures?user="+ u_name + "&secure=1"
 
 User has priority over fetch, in case they are combined...
-
 """
 
 
 ### PARAMS
-u_name = "L1"
-url = "http://www.acceldatacollect.appspot.com/downloadGestures?user="+ u_name + "&secure=1"
-csvDir = "csvData/" + u_name + "/"
+u_name = "L2"
+url = "http://www.acceldatacollect.appspot.com/downloadGestures?user=" + u_name
+csvDir = "csvDataNew/"
+os.mkdir(csvDir)
 
 
 ### SCRIPT
@@ -42,7 +41,7 @@ d = json.load(
     urllib2.urlopen(url, timeout=5.5))
 
 # save the entire json file...
-with open(csvDir + '/all_json.txt', 'w') as outfile:
+with open(csvDir + '/all_json.json', 'w') as outfile:
   json.dump(d, outfile)
 
 
@@ -71,9 +70,10 @@ for i in d:
         else:
             csvrep = "0" + str(dP["rep"])
         
-        csvgest = i["gesture"]
+        # select only the first two letters
+        csvgest = i["gesture"][0:2]
 
-        csvname = "g0" + csvgest + "_" + csvuser + "_t" + csvrep + ".csv"
+        csvname = "g" + csvgest + "_" + csvuser + "_t" + csvrep + ".csv"
 
          # convert the abolute time to relative times in seconds   
         tRel = []

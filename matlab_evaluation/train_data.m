@@ -1,6 +1,5 @@
 function [ s ] = train_data(train_set, gestures, prior1, transmat1, obsmat1, max_iter)
-%UNTITLED3 Summary of this function goes here
-%   Detailed explanation goes here
+% Baum Welch estimation for every gesture in the train_set
 
 % Example init
 % O = 14; % no of output symbols 

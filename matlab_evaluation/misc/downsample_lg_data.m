@@ -1,3 +1,5 @@
+% create a copy of dataset with lower sampling rate
+
 dir_name = '../raw_data/dataset_8_4_14/csvNoise_60Hz/';
 regex = 'g.._.._t..\.csv';
 

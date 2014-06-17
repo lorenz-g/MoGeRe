@@ -1,4 +1,4 @@
-
+% Create a plot for each sample in the dataset and save it. 
 
 % orig data
 from_directory = '../raw_data/dataset_8_4_14/csvNoise_60Hz/';
