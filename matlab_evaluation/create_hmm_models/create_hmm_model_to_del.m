@@ -15,7 +15,7 @@
 dir_name = ['../datasets/discrete/csvData_20Hz/'];
 
 % Select the model name. model_name.mat and model_name.json will be created
-model_name = '5_gestures_demo';
+model_name = 'ALL_robust';
 
 % Select Gestures that should be in the model (both as int and as char)
 gestures_char = {'01' '02' '03' '04' '05'};
@@ -41,8 +41,8 @@ hmm_type = 'left to right';
 
 % Filtering thresholds
 % either: 0.0 and 0.0, 0.05 and 0.05, 0.1 and 0.1
-idle_th = 0.1;
-dir_th = 0.1;
+idle_th = 0.0;
+dir_th = 0.0;
 
 % Number of cluster
 % either 5, 8, 14. --> did not affect results

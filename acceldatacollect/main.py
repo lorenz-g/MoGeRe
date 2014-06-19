@@ -16,15 +16,13 @@ from google.appengine.api import mail
 
 from numpyAnalysis import tickMov_v1
 
+
+#*******************************************************************************
+# Helper functions
+
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir),
                                autoescape = True)
-
-
-"""There are two parallel pages here. 
-/dataCollect --> user can start and stop recording
-/gestureCollect --> 10 iterations of the same gesture. """
-
 
 def render_str(template, **params):
     t = jinja_env.get_template(template)
@@ -47,7 +45,9 @@ class BlogHandler(webapp2.RequestHandler):
 EMAIL_RE  = re.compile(r'^[\S]+@[\S]+\.[\S]+$')
 def valid_email(email):
     return EMAIL_RE.match(email)
-      
+
+
+#*******************************************************************************      
 ##### Data base models   
 def users_key(group = 'default'):
     return ndb.Key('users', group)
@@ -76,13 +76,9 @@ class MotionData(ndb.Model):
     # dataGap is 1 if there is a gap in the recording, 0 if it is ok
     dataGap = ndb.IntegerProperty()
 
-
-
-
-
 class DiscreteData(ndb.Model):
     """ for the discrete recordings 
-        This model is used for the gestureCollect page
+        This model is used for the discreteRecorder
         """
     user = ndb.StringProperty()
     gesture = ndb.StringProperty()    
@@ -95,7 +91,6 @@ class DiscreteData(ndb.Model):
     
     created = ndb.DateTimeProperty(auto_now_add = True)
 
-
     @classmethod
     def query_disrete(cls, number):
         # make use of the structured property values and use the projection to prevent loading all the data
@@ -103,14 +98,12 @@ class DiscreteData(ndb.Model):
             ["user", "gesture", "origSampleFrequ", "periodGesture", "noOfRepetitions",
             "startTime"])
 
-
 class DemoDoubleDB(ndb.Model):
     """ keeps track when which gesture was submitted, if multpile user submit,
     then it gets into trouble"""
     page = ndb.StringProperty()
     gestureName = ndb.StringProperty()
     created = ndb.DateTimeProperty(auto_now_add = True)
-
 
 
 
@@ -150,8 +143,7 @@ class PostGesture(BlogHandler):
 
         # insert data into database
         m.put()
-        
-        
+                
         # Response:
         self.response.headers["Content-Type"] = 'application/json; charset=UTF-8'
         info ="Thanks %s, data received." %(r["user"])
@@ -176,8 +168,6 @@ class DownloadGestures(BlogHandler):
             else:
                 fetch = 100
             q = DiscreteData.query().order(-MotionData.startTime).fetch(fetch)
-
-
         
         if secure == '1':
             jsonList = [i.data for i in q if "OS 6_" in i.userAgent]
@@ -190,25 +180,23 @@ class DownloadGestures(BlogHandler):
 
 class ListDataDisc(BlogHandler):
     def get(self):
-
         user = self.request.get("user");
         fetch = self.request.get("fetch");
         if fetch == '':
             fetch = 20
         else:
             fetch = int(fetch)
-
+            if fetch > 50:
+                fetch = 50
 
         if user != '':
             # http://stackoverflow.com/questions/19720113/cannot-filter-a-non-node-argument-datastore-google-app-engine-python
             # when filtering strings, it is different. 
             q = DiscreteData.query().filter(ndb.GenericProperty('user') == user).fetch(fetch)
-
         else:
             q = DiscreteData.query_disrete(fetch)
 
-        self.render("listDataDisc.html", q = q)
-        #self.response.out.write(q)
+        self.render("listDataDisc.html", q = q, fetch= fetch, user = user)
 
 
 
@@ -252,15 +240,15 @@ class DiscRawData(BlogHandler):
                 # need to reset the csvstream each time.
                 csvStream.truncate(0)
 
-
             file.close()
             zipstream.seek(0)
             self.response.headers['Content-Type'] ='application/zip'
             self.response.headers['Content-Disposition'] = 'attachment; filename="'+ keyId +'.zip"'
             self.response.out.write(zipstream.getvalue())
 
-
-
+class DiscreteRecognizer(BlogHandler):
+    def get(self):
+        self.render("discreteRecognizer.html")
 
 
 #*******************************************************************************
@@ -326,10 +314,8 @@ class PostData(BlogHandler):
         
         # insert data into database
         m.put()
-        
-        
-        # Send Email
-        
+            
+        # Send Email        
         if valid_email(r["email"]):
             user_address = r["email"]
             sender_address = "AccelDataCollect <noreply@acceldatacollect.appspotmail.com>"
@@ -344,18 +330,37 @@ class PostData(BlogHandler):
             http://acceldatacollect.appspot.com/sample/%d/plot
             
             See you!
-            
-            
-            """%(u.name, m.key.id())
-            
-            print body
+                
+            """%(u.name, m.key.id()) 
+            #print body
             mail.send_mail(sender_address, user_address, subject, body)
                  
         
 class ListDataCont(BlogHandler):
     def get(self):
-        q = MotionData.query().order(-MotionData.startTime).fetch(20)
-        self.render("listDataCont.html", q = q)
+        user = self.request.get("user");
+        fetch = self.request.get("fetch");
+        if fetch == '':
+            fetch = 20
+        else:
+            fetch = int(fetch)
+            if fetch > 50:
+                fetch = 50
+
+        # need a work around for the continuous data as user is stored in separate table
+        # So need to query the user ids first. And then look them up indivudually...       
+        if user != '':
+            u_ids = User.query(ndb.GenericProperty('name') == user).fetch(fetch)
+            q = []
+            for i in u_ids:
+                q.append(MotionData.query(ndb.KeyProperty('user') == i.key).get())
+            # in case a user was created that has not MotionData entry, a 'None' field pops up.
+            # Need to remove this fied as o/w jinja gives an error. 
+            q = [i for i in q if i is not None]
+        else:
+            q = MotionData.query().order(-MotionData.startTime).fetch(fetch)
+        self.render("listDataCont.html", q = q, user = user, fetch = fetch)
+
         
 
 class RawJsonSample(BlogHandler):
@@ -380,6 +385,7 @@ class RawJsonSample(BlogHandler):
     
         #convert python dict to json and write it out
         self.write("%s"%json.dumps(jcode))
+
         
 class RawCsvSample(BlogHandler):
     def get(self, keyId, format1):
@@ -409,7 +415,6 @@ class RawCsvSample(BlogHandler):
                             dP["x"][i], dP["y"][i] , dP["z"][i]])
 
             
-
 class PlotSample(BlogHandler):
     def get(self, keyId, format1):
         "I get the key_id, as in the route, a regex is set up"        
@@ -462,10 +467,6 @@ class PlotSample(BlogHandler):
                                     detectPlot = detectPlot )         
 
 
-class DiscreteRecognizer(BlogHandler):
-    def get(self):
-        self.render("discreteRecognizer.html")
-
 class ContinuousRecognizer(BlogHandler):
     def get(self):
 
@@ -491,6 +492,9 @@ class RenderJsonModels(BlogHandler):
         self.response.headers["Content-Type"] = 'application/json'
         self.render(self.request.path[1:])
 
+
+#*******************************************************************************       
+##### Bookmark demos
 class DemoSingle(BlogHandler):
     def get(self):
         self.render("demoSingle.html")
@@ -504,9 +508,7 @@ class DemoDoubleDesktop(BlogHandler):
         self.render("demoDoubleDesktop.html")
 
 class DemoDoubleAction(BlogHandler):
-    def post(self):
-
-        
+    def post(self):        
         page = self.request.get("page")
         print page
         m = DemoDoubleDB()
@@ -534,19 +536,13 @@ class DemoDoubleAction(BlogHandler):
 
         response = {"status": status, "page": page, "gestureName": gestureName}
         self.write(json.dumps(response))
-
-        
-
-
-
         
 class SamplePost(BlogHandler):
     def post(self):
         pass
         
 
-
-
+#*******************************************************************************       
 ##### Page routing
 
 # http://webapp-improved.appspot.com/guide/routing.html

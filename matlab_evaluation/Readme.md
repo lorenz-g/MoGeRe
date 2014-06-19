@@ -20,10 +20,12 @@ To inspect the .json file it is best to open it in Sublime or Chrome they format
 only one gesture. 
 
 `eval_discrete/evaluate_model_disc.m` : inter gesture evaluation of model. Can take long to finish due 
-to 5 fold cross validation.  
+to 5 fold cross validation. 
+
+
+
 
 ### Things that I learned / thought were useful
-
 
 #### Use setup script to add subdirectories
 

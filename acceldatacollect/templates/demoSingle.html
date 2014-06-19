@@ -20,11 +20,11 @@
         
         <div data-role="content" data-theme="a">
             <h3>Gesture Bookmarks Demo 1</h3>
-            <div>Open bookmark by writing letter in the air</div>
+            <div>Open bookmark by writing letter in the air (A, B, G or Z).</div>
             <div id="info">_</div>
             <br>
 
-            <button id="startGestureRec" >TOUCH BUTTON AND START</button>
+            <button id="startGestureRec" >TOUCH AND HOLD BUTTON <br>TO WRITE</button>
         </div>
 
     </div> 
@@ -43,9 +43,7 @@
 var JM = new Object();
 
 //var modelName = "/json_models/discrete/all_models_25_4.json";
-var modelName = "/json_models/demo/AtoG_l2r_6_6.json";
-
-//AtoG_l2r_6_6 gesture a and G work well
+var modelName = "/json_models/demo/ABGZ_idle0_0_19_6.json";
 
 $.getJSON(modelName)
 .done(function( data ) {
@@ -58,7 +56,7 @@ var gestToName = {
   "2" : "tick move",
   "3" : "ind move plus 90",
   "4" : "left right left right",
-  "5" : "z",
+  "5" : "Z",
   "6" : "A",
   "7" : "B",
   "8" : "C",
@@ -70,7 +68,9 @@ var gestToName = {
 
 var nameToPage = {
     "A" : "http://amazon.co.uk",
-    "G": 'http://www.google.co.uk'
+    "B" : "http://bbc.co.uk",
+    "G": 'http://www.google.co.uk',
+    "Z": 'http://www.zoopla.co.uk'
 }
 
 
@@ -100,7 +100,10 @@ $('#startGestureRec').bind( "touchend", function(e){
         gyro.stopTracking();
         // assumes fsample of 20hz
         if (data.t.length > 20){
-            var res = discrete_recognizer_sep_filter(JM, data, 10, -150);
+            // set the noise and ll threshold to accept almost anything...
+            noise_th = 10;
+            ll_th = -150;
+            var res = discrete_recognizer_sep_filter(JM, data, noise_th, ll_th);
             if (res.status == 0){
                 if (res.info[0] == "b"){
                     $("#info").html("Sorry, that was too complicated..."); 

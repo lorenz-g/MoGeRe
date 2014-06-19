@@ -29,8 +29,8 @@ User has priority over fetch, in case they are combined...
 
 
 ### PARAMS
-u_name = "L2"
-url = "http://www.acceldatacollect.appspot.com/downloadGestures?user=" + u_name
+u_name = "L3"
+url = "http://localhost:8080/downloadGestures?user=" + u_name
 csvDir = "csvDataNew/"
 os.mkdir(csvDir)
 
@@ -63,7 +63,7 @@ for i in d:
         elif len(i["user"]) == 2:
             csvuser = i["user"]
         elif len(i["user"]) > 2:
-            csvuser = i["user"][0] + i["user"][1]  
+            csvuser = i["user"][0:2]  
 
         if dP["rep"] > 9:
             csvrep = str(dP["rep"])
