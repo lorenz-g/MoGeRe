@@ -60,7 +60,9 @@ Required Hardware:
 		g02_XX_t0Y --> Gesture B ...
 
 ###### 3 Create the model
-- Open the `/matlab_evaluation/create_hmm_models.create_hmm_model_s_by_s.m` file in Matlab. 
+- Open matlab and set the `/matlab_evaluation/` as your current directory.
+- Run the `setup.m` script. 
+- Open the `create_hmm_models.create_hmm_model_s_by_s.m` file in Matlab. 
 - Run it. If the data format in the `datasets/csvDataNew` directory is correct, the file 
 `Model_A_and_B.json' is created the this directory.  
 
