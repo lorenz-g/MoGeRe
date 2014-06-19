@@ -55,6 +55,7 @@ Required Hardware:
 - Execute the srcipt (e.g. `$ pytyon gestures_to_csv.py` in the command line).
 - This should download all the files and put it into the directory `datasets/csvDataNew`. 
 - You should have 20 files in there now. with the format:
+
 		g01_XX_t0Y --> Gesture A, with xx the fist two letters of your name, and y the repetition
 		g02_XX_t0Y --> Gesture B ...
 
@@ -67,8 +68,10 @@ Required Hardware:
 - Copy the json file from 3 into `acceldatacollect/templates/json_models/demo`
 - Next, open `acceldatacollect/templates/demoSingle.html` and change the `modelName` variable such that it points to your json file. 
 - Also in `acceldatacollect/templates/demoSingle.html` change
+
 		"1" : "double knock" to "1" : "A"
   		"2" : "tick move"    to "2" : "B"
+  		
 - Finally, navigate to the single Demo page, hold the button pressed, draw one of your gesture is the air and your phone should recognize it. 
 
 
