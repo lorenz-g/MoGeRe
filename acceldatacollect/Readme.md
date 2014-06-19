@@ -9,6 +9,10 @@ launched directly from the app engine laucher)
  		$ dev_appserver.py --host=0.0.0.0 acceldatacollect
  		the --host makes it available to all devices in local network...
 
+- BUG: With version 1.8.8 it did not find the numpy library. I got it to work by chaning the source cod 
+of the App Engine Launcher but that was tedious. Quick Fix: Comment the follwing in `main.py`
+		from numpyAnalysis import tickMov_v1
+
 - Open localhost in Browser. (I used Chrome and Safari Mobile)
 
 - To open the site on a mobile phone

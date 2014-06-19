@@ -29,8 +29,8 @@ User has priority over fetch, in case they are combined...
 
 
 ### PARAMS
-u_name = "L3"
-url = "http://localhost:8080/downloadGestures?user=" + u_name
+u_name = "Step+by+step+demo"
+url = "http://www.acceldatacollect.appspot.com/downloadGestures?user=" + u_name
 csvDir = "csvDataNew/"
 os.mkdir(csvDir)
 
