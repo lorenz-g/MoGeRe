@@ -11,6 +11,10 @@ Below the link to my final report (it is quite large, 13MB):
 
 https://dl.dropboxusercontent.com/u/14163800/fyp/FYP_final_smaller_size.pdf
 
+A video of the final final hardware prototype:
+
+https://www.youtube.com/watch?v=YuPguzrRkII
+
 It has 3 major parts:
 
 - `/acceldatacollect`: Mobile web application that can record and recognize acceleration data from 
