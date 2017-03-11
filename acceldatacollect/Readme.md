@@ -26,7 +26,7 @@ of the App Engine Launcher but that was tedious. Quick Fix: Comment the follwing
 - The Recordings pages might result in an error if the databases are still empty.
 
 
-- Can be run offline as well. Except fo the two sounds that are loaded from dropbox. 
+- Can be run offline as well.
 
 
 #### Deploy the project on a google server. 
